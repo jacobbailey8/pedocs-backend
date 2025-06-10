@@ -8,8 +8,20 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 import os
+import time
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start = time.time()
+    yield 
+    print(f"App startup took {time.time() - start:.2f} seconds")
+
+
+boot_time = time.time()
+
+
+app = FastAPI(lifespan=lifespan)
 
 # rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -50,10 +62,12 @@ async def get_predictions(request: Request, file: UploadFile = File(...)):
     response_data = format_predictions(result_df)
     return JSONResponse(content=response_data)
 
-
-
 def format_predictions(df: pd.DataFrame):
     df = df.reset_index()
     df['timestamp'] = df['timestamp'].astype(str)
     df = df.rename(columns={'pedocs_score': 'score'}) 
     return df.to_dict(orient='records')
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
