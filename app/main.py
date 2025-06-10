@@ -29,7 +29,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080").split(",")
-allowed_origins.append("https://delicate-frangollo-3f4686.netlify.app/")
+allowed_origins.append("https://delicate-frangollo-3f4686.netlify.app")
 
 app.add_middleware(
     CORSMiddleware,
